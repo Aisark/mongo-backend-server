@@ -26,20 +26,12 @@ app.get('/', (req, res) => {
 })
 
 // Petición POST: Crear Hospital
-app.post('/', mAutentication, (req, res) => {
+app.post('/', mAutentication.verificaToken, (req, res) => {
     var body = req.body;
-
-    /*suario.findById(body.usuario, (err, usuario) => {
-
-        if(err){
-
-        }
-    });*/
 
     var hospital = new Hospital({
         nombre: body.nombre,
-        img: body.img,
-        usuario: body.usuario
+        usuario: req.usuario._id
     });
 
     hospital.save((err, hospital) => {
@@ -58,7 +50,7 @@ app.post('/', mAutentication, (req, res) => {
 });
 
 // Petición PUT: Actualizar Hospital
-app.put('/:id', mAutentication, (req, res) => {
+app.put('/:id', mAutentication.verificaToken, (req, res) => {
     var id = req.params.id;
     var body = req.body;
 
@@ -77,9 +69,8 @@ app.put('/:id', mAutentication, (req, res) => {
                 errors: { message: 'Hospital no se encuentra en la BD' }
             });
         }
-        hospital.nombre = (body.nombre) ? body.nombre : hospital.nombre;
-        hospital.img = (body.img) ? body.img : hospital.img;
-        hospital.usuario = (body.usuario) ? body.usuario : hospital.usuario;
+        hospital.nombre = body.nombre;
+        hospital.usuario = req.usuario._id;
 
         hospital.save((err, hospital) => {
             if (err) {
@@ -98,7 +89,7 @@ app.put('/:id', mAutentication, (req, res) => {
 });
 
 // Petición DELETE: Borrar Hospital
-app.delete('/:id', mAutentication, (req, res) => {
+app.delete('/:id', mAutentication.verificaToken, (req, res) => {
     var id = req.params.id;
     Hospital.findByIdAndRemove(id, (err, hospital) => {
         if (err) {
