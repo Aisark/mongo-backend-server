@@ -10,12 +10,14 @@ var app = express();
 var Usuario = require('../models/usuario');
 
 // Rutas con GET
-/**
- * @description Obtener todos los usuarios por metodo GET
- */
 app.get('/', (req, res, next) => {
 
+    var range = req.query.range || 0;
+    range = Number(range);
+
     Usuario.find({}, 'nombre email img role')
+        .skip(range)
+        .limit(5)
         .exec((err, usuarios) => {
             if (err) {
                 // Error 500 en la BD
@@ -25,9 +27,12 @@ app.get('/', (req, res, next) => {
                     errors: err
                 });
             }
-            res.status(200).json({
-                ok: true,
-                usuarios: usuarios
+            Usuario.count({}, (err, count) => {
+                res.status(200).json({
+                    ok: true,
+                    count: count,
+                    usuarios: usuarios
+                });
             });
         })
 

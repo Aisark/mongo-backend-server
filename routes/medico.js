@@ -6,7 +6,7 @@ var app = express();
 
 // Modelos
 var Hospital = require('../models/hospital');
-var Usuario = require('../models/usuario');
+var Medico = require('../models/medico');
 
 // Petición GET
 app.get('/', (req, res) => {
@@ -14,11 +14,12 @@ app.get('/', (req, res) => {
     var range = req.query.range || 0;
     range = Number(range);
 
-    Hospital.find({})
+    Medico.find({})
         .populate('usuario', 'nombre email')
+        .populate('hospital')
         .skip(range)
         .limit(5)
-        .exec((err, hospitales) => {
+        .exec((err, medicos) => {
             if (err) {
                 return res.status(500).json({
                     ok: false,
@@ -30,7 +31,7 @@ app.get('/', (req, res) => {
                 res.status(200).json({
                     ok: true,
                     count: count,
-                    hospitales: hospitales
+                    medicos: medicos
                 });
             });
         })
@@ -40,21 +41,23 @@ app.get('/', (req, res) => {
 app.post('/', mAutentication.verificaToken, (req, res) => {
     var body = req.body;
 
-    var hospital = new Hospital({
+    var medico = new Hospital({
         nombre: body.nombre,
-        usuario: req.usuario._id
+        usuario: req.usuario._id,
+        hospital: body.hospital
     });
 
-    hospital.save((err, hospital) => {
+    medico.save((err, medico) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
                 message: 'Error en el server'
             });
         }
+
         res.status(201).json({
             ok: true,
-            hospital: hospital
+            medico: medico
         });
     });
 
@@ -65,7 +68,7 @@ app.put('/:id', mAutentication.verificaToken, (req, res) => {
     var id = req.params.id;
     var body = req.body;
 
-    Hospital.findById(id, (err, hospital) => {
+    Medico.findById(id, (err, hospital) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
@@ -76,14 +79,15 @@ app.put('/:id', mAutentication.verificaToken, (req, res) => {
         if (!hospital) {
             return res.status(400).json({
                 ok: false,
-                message: 'El hospital no existe',
-                errors: { message: 'Hospital no se encuentra en la BD' }
+                message: 'El medico no existe',
+                errors: { message: 'Medico no se encuentra en la BD' }
             });
         }
-        hospital.nombre = body.nombre;
-        hospital.usuario = req.usuario._id;
+        medico.nombre = body.nombre;
+        medico.usuario = req.usuario._id;
+        medico.hospital = body.hospital
 
-        hospital.save((err, hospital) => {
+        medico.save((err, medico) => {
             if (err) {
                 return res.status(400).json({
                     ok: false,
@@ -93,7 +97,7 @@ app.put('/:id', mAutentication.verificaToken, (req, res) => {
             }
             res.status(200).json({
                 ok: true,
-                hospital: hospital
+                medico: medico
             });
         });
     });
@@ -102,7 +106,7 @@ app.put('/:id', mAutentication.verificaToken, (req, res) => {
 // Petición DELETE: Borrar Hospital
 app.delete('/:id', mAutentication.verificaToken, (req, res) => {
     var id = req.params.id;
-    Hospital.findByIdAndRemove(id, (err, hospital) => {
+    Medico.findByIdAndRemove(id, (err, medico) => {
         if (err) {
             // Error 500 en la BD
             return res.status(500).json({
@@ -113,7 +117,7 @@ app.delete('/:id', mAutentication.verificaToken, (req, res) => {
         }
         res.status(200).json({
             ok: true,
-            usuario: hospital
+            medico: medico
         });
     });
 });

@@ -1,19 +1,24 @@
 // Requirements
-var express = require('express');
-var mongoose = require('mongoose');
-var bodyParser = require('body-parser');
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
-// Iniciando variables
-var app = express();
+// Iniciando constiables
+const app = express();
 
 // Body Parser
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Importar rutas
-var appRoutes = require('./routes/app');
-var usuarioRoutes = require('./routes/usuario');
-var loginRoutes = require('./routes/login');
+const appRoutes = require('./routes/app');
+const usuarioRoutes = require('./routes/usuario');
+const loginRoutes = require('./routes/login');
+const hospitalRoutes = require('./routes/hospital');
+const medicoRoutes = require('./routes/medico');
+const busquedaRoutes = require('./routes/busqueda');
+const uploadRoutes = require('./routes/upload');
+const imagenesRoutes = require('./routes/imagenes');
 
 // Conección a la BD
 mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', (err, res) => {
@@ -22,8 +27,13 @@ mongoose.connection.openUri('mongodb://localhost:27017/hospitalDB', (err, res) =
 });
 
 // Rutas
-app.use('/usuario', usuarioRoutes);
 app.use('/login', loginRoutes);
+app.use('/usuario', usuarioRoutes);
+app.use('/medico', medicoRoutes);
+app.use('/hospital', hospitalRoutes);
+app.use('/upload', uploadRoutes)
+app.use('/busuqeda', busquedaRoutes);
+app.use('/img', imagenesRoutes);
 app.use('/', appRoutes);
 
 // Escuchar puerto
