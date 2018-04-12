@@ -39,8 +39,8 @@ app.get('/', (req, res, next) => {
 
 });
 
-// Rutas con POST
-app.post('/', mAutentication.verificaToken, (req, res) => {
+// Rutas con POST para crear nuevo usario
+app.post('/', (req, res) => {
     // Si body-parse no esta instalado no funciona
     var body = req.body
 
